@@ -40,10 +40,7 @@ export default function UnirseJuntada() {
         <p style={{ marginBottom: '1.5rem' }}>Necesitás una cuenta para confirmar tu asistencia y participar.</p>
         <button
           className="btn btn-primary btn-lg btn-full"
-          onClick={() => {
-            sessionStorage.setItem('redirectAfterLogin', `/unirse/${code}`)
-            navigate('/auth')
-          }}>
+          onClick={() => navigate(`/auth?code=${code}`)}>
           Crear cuenta o iniciar sesión →
         </button>
       </div>
