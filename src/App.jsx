@@ -12,7 +12,7 @@ import './styles/global.css'
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/juntada-app">
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/unirse/:code" element={<UnirseJuntada />} />
