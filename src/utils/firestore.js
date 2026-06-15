@@ -1,7 +1,7 @@
 import {
   collection, doc, addDoc, updateDoc, getDoc, getDocs,
-  query, where, orderBy, arrayUnion, arrayRemove,
-  serverTimestamp, deleteDoc, writeBatch
+  query, where, orderBy, arrayUnion,
+  serverTimestamp
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { nanoid } from '../utils/nanoid'
@@ -17,13 +17,15 @@ export async function createJuntada({ nombre, descripcion, lugar, organizadorId,
     organizadorId,
     organizadorName,
     shareCode,
-    estado: 'planificando', // planificando | confirmada | finalizada
+    estado: 'planificando',
     fechaConfirmada: null,
-    fechasProuestas: [],
-    invitados: [{ uid: organizadorId, nombre: organizadorName, estado: 'va', esOrganizador: true }],
+    fechasPropuestas: [],
+    invitadosUids: [organizadorId],
+    invitados: [{ uid: organizadorId, nombre: organizadorName, estado: 'va', esOrganizador: true, adultos: 1, menores: 0 }],
     items: [],
     gastos: [],
     autos: [],
+    menu: [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   })
@@ -38,17 +40,10 @@ export async function getJuntada(id) {
 export async function getJuntadasByUser(uid) {
   const q = query(
     collection(db, 'juntadas'),
-    where('invitados', 'array-contains-any', [{ uid, estado: 'va', esOrganizador: true }, { uid, estado: 'va', esOrganizador: false }, { uid, estado: 'pendiente', esOrganizador: false }]),
-    orderBy('createdAt', 'desc')
-  )
-  // Firestore no permite array-contains-any con objetos, usamos otra estrategia
-  // Guardamos también un array plano de UIDs para querying
-  const q2 = query(
-    collection(db, 'juntadas'),
     where('invitadosUids', 'array-contains', uid),
     orderBy('createdAt', 'desc')
   )
-  const snap = await getDocs(q2)
+  const snap = await getDocs(q)
   return snap.docs.map(d => ({ id: d.id, ...d.data() }))
 }
 
@@ -78,7 +73,9 @@ export async function unirseAJuntada(juntadaId, user) {
       uid: user.uid,
       nombre: user.displayName,
       estado: 'pendiente',
-      esOrganizador: false
+      esOrganizador: false,
+      adultos: 1,
+      menores: 0
     }),
     updatedAt: serverTimestamp()
   })
@@ -136,11 +133,7 @@ export async function eliminarOpcionMenu(juntadaId, opcionId) {
 
 export async function proponerFecha(juntadaId, fecha, proponenteUid) {
   const ref = doc(db, 'juntadas', juntadaId)
-  const nuevaFecha = {
-    id: nanoid(6),
-    fecha,
-    votos: [proponenteUid]
-  }
+  const nuevaFecha = { id: nanoid(6), fecha, votos: [proponenteUid] }
   await updateDoc(ref, {
     fechasPropuestas: arrayUnion(nuevaFecha),
     updatedAt: serverTimestamp()
@@ -150,8 +143,7 @@ export async function proponerFecha(juntadaId, fecha, proponenteUid) {
 export async function votarFecha(juntadaId, fechaId, uid, agregar) {
   const ref = doc(db, 'juntadas', juntadaId)
   const snap = await getDoc(ref)
-  const data = snap.data()
-  const fechas = (data.fechasPropuestas || []).map(f =>
+  const fechas = (snap.data().fechasPropuestas || []).map(f =>
     f.id === fechaId
       ? { ...f, votos: agregar ? [...new Set([...f.votos, uid])] : f.votos.filter(v => v !== uid) }
       : f
@@ -200,7 +192,7 @@ export async function agregarGasto(juntadaId, { descripcion, monto, pagadoPorUid
     monto: Number(monto),
     pagadoPorUid,
     pagadoPorNombre,
-    divididoEntre, // array de UIDs
+    divididoEntre,
     fecha: new Date().toISOString()
   }
   await updateDoc(ref, { gastos: arrayUnion(gasto), updatedAt: serverTimestamp() })
@@ -226,7 +218,6 @@ export function calcularDeudas(gastos, invitados) {
     })
   })
 
-  // Simplificar deudas
   const deudas = []
   const positivos = Object.values(balances).filter(b => b.balance > 0.01).sort((a, b) => b.balance - a.balance)
   const negativos = Object.values(balances).filter(b => b.balance < -0.01).sort((a, b) => a.balance - b.balance)
