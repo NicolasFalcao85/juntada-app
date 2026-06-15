@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function AuthPage() {
@@ -12,6 +12,12 @@ export default function AuthPage() {
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
+  function getRedirect() {
+    const redirect = sessionStorage.getItem('redirectAfterLogin')
+    sessionStorage.removeItem('redirectAfterLogin')
+    return redirect || '/'
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
@@ -23,7 +29,7 @@ export default function AuthPage() {
         if (!form.nombre.trim()) { setError('Ingresá tu nombre'); setLoading(false); return }
         await register(form.email, form.password, form.nombre.trim())
       }
-      navigate('/')
+      navigate(getRedirect())
     } catch (err) {
       const msgs = {
         'auth/user-not-found': 'No existe una cuenta con ese email.',
@@ -43,7 +49,7 @@ export default function AuthPage() {
     setLoading(true)
     try {
       await loginWithGoogle()
-      navigate('/')
+      navigate(getRedirect())
     } catch {
       setError('No se pudo iniciar sesión con Google.')
     }
@@ -54,7 +60,6 @@ export default function AuthPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', background: 'var(--surface)' }}>
       <div style={{ width: '100%', maxWidth: 400 }}>
 
-        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎉</div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', color: 'var(--text)' }}>
@@ -67,7 +72,6 @@ export default function AuthPage() {
 
         <div className="card" style={{ boxShadow: 'var(--shadow-lg)' }}>
 
-          {/* Tabs */}
           <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: 'var(--radius)', padding: '3px', marginBottom: '1.5rem' }}>
             {['login', 'register'].map(m => (
               <button key={m} onClick={() => { setMode(m); setError('') }}
