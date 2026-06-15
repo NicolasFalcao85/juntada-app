@@ -13,9 +13,9 @@ export default function AuthPage() {
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
   function getRedirect() {
-    const redirect = sessionStorage.getItem('redirectAfterLogin')
-    sessionStorage.removeItem('redirectAfterLogin')
-    return redirect || '/'
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    return code ? `/unirse/${code}` : '/'
   }
 
   async function handleSubmit(e) {
