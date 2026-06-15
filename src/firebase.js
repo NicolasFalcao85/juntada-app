@@ -2,14 +2,13 @@ import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
-// Reemplazá estos valores con los de tu proyecto Firebase
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROJECT.firebaseapp.com",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_PROJECT.appspot.com",
-  messagingSenderId: "TU_MESSAGING_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyBomXykf8VkCn4x8Mq-nj0CCZVF9cwywoE",
+  authDomain: "juntada-app-6a447.firebaseapp.com",
+  projectId: "juntada-app-6a447",
+  storageBucket: "juntada-app-6a447.firebasestorage.app",
+  messagingSenderId: "511509450342",
+  appId: "1:511509450342:web:021fd56c9ae74a7417a7a7"
 }
 
 const app = initializeApp(firebaseConfig)
