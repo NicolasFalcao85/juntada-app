@@ -9,7 +9,7 @@
       (function() {
         var p = new URLSearchParams(window.location.search).get('p');
         if (p) {
-          history.replaceState(null, null, '/juntada-app' + p);
+          history.replaceState(null, null, '/juntada-app' + decodeURIComponent(p));
         }
       })();
     </script>
