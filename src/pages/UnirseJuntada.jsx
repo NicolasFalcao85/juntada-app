@@ -38,9 +38,14 @@ export default function UnirseJuntada() {
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
         <h2 style={{ marginBottom: '0.5rem' }}>Te invitaron a {juntada?.nombre}</h2>
         <p style={{ marginBottom: '1.5rem' }}>Necesitás una cuenta para confirmar tu asistencia y participar.</p>
-        <a href={`/auth?next=/unirse/${code}`} className="btn btn-primary btn-lg btn-full">
+        <button
+          className="btn btn-primary btn-lg btn-full"
+          onClick={() => {
+            sessionStorage.setItem('redirectAfterLogin', `/unirse/${code}`)
+            navigate('/auth')
+          }}>
           Crear cuenta o iniciar sesión →
-        </a>
+        </button>
       </div>
     </div>
   )
