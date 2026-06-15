@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import NuevaJuntada from './pages/NuevaJuntada'
 import JuntadaPage from './pages/JuntadaPage'
 import UnirseJuntada from './pages/UnirseJuntada'
+import Perfil from './pages/Perfil'
 import './styles/global.css'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route path="/nueva" element={<PrivateRoute><NuevaJuntada /></PrivateRoute>} />
           <Route path="/j/:id" element={<PrivateRoute><JuntadaPage /></PrivateRoute>} />
+          <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
